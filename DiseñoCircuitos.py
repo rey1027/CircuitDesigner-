@@ -1,9 +1,11 @@
 import pygame  
 import sys    
-import random  
+import random 
 import time    
 import threading # hilos
 import eztext
+import networkx as nx
+
 pygame.init()
 
 
@@ -13,8 +15,11 @@ def menu():
     blanco = (255,255,255)
 
     PuntosEnlace = []
-    RectsList = [] # List of rectangles (playing field boxes)
+    
+    RectsList = []
+
     indicadorEstado = []
+
     x1=15 # Position x initial 
     y1=-55 # Position y initial  
 
@@ -31,7 +36,10 @@ def menu():
     Menu = pygame.display.set_mode([1098,650]) # Play window with its dimensions     
 
     fuente = pygame.font.Font(None,25)
+    
+    # Nombre
     userText = ""
+    # Valor
     userText2 = ""
 
     fuente2 = pygame.font.Font(None,25)
@@ -59,7 +67,12 @@ def menu():
     Exportar_Image = pygame.transform.scale(Exportar_Image, (140, 38))
     Simulacion_Image = pygame.image.load("Simulacion.png")
     
-    
+    Grafo = nx.Graph()
+
+    ListaGrafo = []
+
+    ListaConexiones = []
+
     Menu.fill((13, 31, 74))
 
     for recs in RectsList: # For the squares in the list
@@ -98,7 +111,22 @@ def menu():
 
     conectar = 0
 
+    simulacion = False
+
+    contNodoE = 0
+
+    colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+
+    NodoElectronico = []
+
+    NodosE = []
+
+    ListaTensiones = []
+
+    MostrarTensiones = False
+
     while True:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -114,9 +142,23 @@ def menu():
                     if event.key == pygame.K_BACKSPACE:
                         userText2 = userText2[0:-1]
                     else:    
-                        userText2 += event.unicode            
+                        userText2 += event.unicode
+
+                if event.key == pygame.K_s:
+                    contNodoE+=1
+                    colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+                    NodosE.append(NodoElectronico)
+                    NodoElectronico = []
+                    print (NodosE)             
             
             if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+
+                for i in ListaGrafo:
+                    print (i[0])
+
+                print(ListaGrafo)
+
+                #print(ListaGrafo)
                 PositionMenu = pygame.mouse.get_pos()
                 print(PositionMenu)
 
@@ -169,6 +211,14 @@ def menu():
                                 PuntosEnlace.append(b)
                                 pygame.draw.rect(Menu, negro, b)
 
+                                #Grafo.add_node(userText)
+                                #Grafo.nodes[userText]["Valor"] = userText2
+                                #Grafo.nodes[userText]["Valoar"] = userText2
+                                #print(Grafo.nodes(data=True))
+
+                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
+
+
                         textSeleccion2 = " ------ "
                         unid="---"
                         userText2=""
@@ -211,7 +261,11 @@ def menu():
                                         PuntosEnlace.remove(i)
                                 for i in PuntosEnlace:
                                     if i == pygame.Rect(recs.x+106,recs.y+31,5,7):
-                                        PuntosEnlace.remove(i)        
+                                        PuntosEnlace.remove(i)
+
+                                for nodo in ListaGrafo:
+                                    if nodo[3] == recs.x and nodo[4] == recs.y:
+                                        ListaGrafo.remove(nodo)        
 
 
                         #print(indicadorEstado)
@@ -236,20 +290,27 @@ def menu():
 
                                     pygame.draw.rect(Menu,(negro),(recs.x+33,recs.y-40,2,40))
                                     pygame.draw.rect(Menu,(negro),(recs.x+33,recs.y+69,2,40))
-
+                                    # eliminar puntos de enlace antiguos
                                     for i in PuntosEnlace:
                                         if i == pygame.Rect(recs.x-40,recs.y+31,7,5):
                                             PuntosEnlace.remove(i)
                                     for i in PuntosEnlace:
                                         if i == pygame.Rect(recs.x+106,recs.y+31,7,5):
                                             PuntosEnlace.remove(i)
-
+                                    # crear nuevos puntos de enlace
                                     a = pygame.Rect(recs.x+31,recs.y-40,7,5)
                                     PuntosEnlace.append(a)
                                     pygame.draw.rect(Menu, negro, a)
                                     b = pygame.Rect(recs.x+31,recs.y+106,7,5)
                                     PuntosEnlace.append(b)
                                     pygame.draw.rect(Menu, negro, b)
+
+                                    for recs in RectsList: # For the squares in the list
+                                        for nodo in ListaGrafo:
+                                            if nodo[3] == recs.x and nodo[4] == recs.y:
+                                                nodo[2] = 1 
+                                                nodo[5] = a
+                                                nodo[6] = b
                                 
                                 elif indicadorEstado[Posicion] == 1:
                                     indicadorEstado[Posicion] = 2
@@ -276,6 +337,13 @@ def menu():
                                     b = pygame.Rect(recs.x+106,recs.y+31,5,7)
                                     PuntosEnlace.append(b)
                                     pygame.draw.rect(Menu, negro, b)
+
+                                    for recs in RectsList: # For the squares in the list
+                                        for nodo in ListaGrafo:
+                                            if nodo[3] == recs.x and nodo[4] == recs.y:
+                                                nodo[2] = 2 
+                                                nodo[5] = a
+                                                nodo[6] = b
 
 
                                 elif indicadorEstado[Posicion] == 4:
@@ -304,6 +372,13 @@ def menu():
                                     PuntosEnlace.append(b)
                                     pygame.draw.rect(Menu, negro, b)
 
+                                    for recs in RectsList: # For the squares in the list
+                                        for nodo in ListaGrafo:
+                                            if nodo[3] == recs.x and nodo[4] == recs.y:
+                                                nodo[2] = 3 
+                                                nodo[5] = a
+                                                nodo[6] = b
+
 
                                 elif indicadorEstado[Posicion] == 3:
                                     indicadorEstado[Posicion] = 4
@@ -330,6 +405,14 @@ def menu():
                                     b = pygame.Rect(recs.x+106,recs.y+31,5,7)
                                     PuntosEnlace.append(b)
                                     pygame.draw.rect(Menu, negro, b)
+
+                                    for recs in RectsList: # For the squares in the list
+                                        for nodo in ListaGrafo:
+                                            if nodo[3] == recs.x and nodo[4] == recs.y:
+                                                nodo[2] = 4 
+                                                nodo[5] = a
+                                                nodo[6] = b
+
 
 
 
@@ -368,37 +451,72 @@ def menu():
                                 b = pygame.Rect(recs.x+31,recs.y+106,7,5)
                                 PuntosEnlace.append(b)
                                 pygame.draw.rect(Menu, negro, b)
+
+                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
+                                print(ListaGrafo)
+
                         textSeleccion2 = " ------ "
                         unid="---"
                         userText2=""
                         userText=""
-
+                    # conexion entre puntos
                     Punto = -1
                     for puntos in PuntosEnlace: # For the squares in the list
                         Punto+=1
                         if puntos.collidepoint(event.pos) and conectar == 0:
+                            
+                            for nodo in ListaGrafo:
+                                if nodo[5][0] == puntos[0] and nodo[5][1] == puntos[1]:
+                                    conexion1 = nodo[0]
+                                    enlazado1 = nodo[5]
+                                elif nodo[6][0] == puntos[0] and nodo[6][1] == puntos[1]:
+                                    conexion1 = nodo[0]
+                                    enlazado1 = nodo[6]
+
                             pygame.draw.rect(Menu, (219, 177, 48), puntos)
                             p1=(puntos[0],puntos[1])
                             conectar = 1
+
                             break
 
                         if puntos.collidepoint(event.pos) and conectar == 1:
-                            pygame.draw.line(Menu, (0,0,0), (p1[0],p1[1]), (puntos[0], puntos[1]),2)
+
+                            for nodo in ListaGrafo:
+
+
+                                if nodo[5][0] == puntos[0] and nodo[5][1] == puntos[1]:
+                                    conexion2 = nodo[0] 
+                                    enlazado2 = nodo[5]
+                                    ListaConexiones.append([conexion1,conexion2])
+
+                                    NodoElectronico.append(enlazado1)
+                                    NodoElectronico.append(enlazado2)
+
+
+                                elif nodo[6][0] == puntos[0] and nodo[6][1] == puntos[1]:
+                                    conexion2 = nodo[0]
+                                    enlazado2 = nodo[6]
+                                    ListaConexiones.append([conexion1,enlazado1,conexion2,enlazado2])
+
+                                    NodoElectronico.append(enlazado1)
+                                    NodoElectronico.append(enlazado2)
+                                    
+
+                            pygame.draw.line(Menu, colorNodoE, (p1[0],p1[1]), (puntos[0], puntos[1]),2)
                             pygame.draw.rect(Menu, (219, 177, 48), puntos)
                             conectar = 0
 
 
-
-
-                            
-
-
                 if PositionMenu[0]>948 and PositionMenu[0]<1028 and PositionMenu[1]>340 and PositionMenu[1]<410:
                     eliminar = True
-
+                    print(NodoElectronico)
 
                 if PositionMenu[0]>1021 and PositionMenu[0]<1091 and PositionMenu[1]>340 and PositionMenu[1]<410:
-                    voltear = True    
+                    voltear = True
+
+                if PositionMenu[0]>950 and PositionMenu[0]<1085 and PositionMenu[1]>568 and PositionMenu[1]<640:
+                    simulacion = True
+
 
                 if PositionMenu[0]>981 and PositionMenu[0]<1051 and PositionMenu[1]>15 and PositionMenu[1]<85:
                     seleccionFPoder[0] = True
@@ -427,6 +545,7 @@ def menu():
 
         pygame.draw.rect(Menu,(87, 89, 97),seleccionRect2)
 
+
         Menu.blit(Borrar_Image,(948,340))
         Menu.blit(Girar_Image,(1021,340))
         #print(eliminar)
@@ -435,6 +554,22 @@ def menu():
             #if indicadorActual == 0:
         #print(RectsList[28])
         #print(PuntosEnlace)    
+        if simulacion:
+            eliminar = False
+            voltear = False
+            activo = False
+            activo2 = False
+            seleccionFPoder[0] = False
+            seleccionResistencia[0] = False
+            conectar = 0
+            PositionSimulacion = pygame.mouse.get_pos()
+            
+            #print (NodosE)
+            for i in NodosE:
+                ListaTensiones += [[random.randint(1,10),random.randint(1,1000)]]
+            #print(ListaTensiones)
+            MostrarTensiones = True
+            simulacion = False
 
         if eliminar:
             pygame.draw.rect(Menu,(255,255,255),infoEliminar)
@@ -447,6 +582,17 @@ def menu():
             pygame.draw.rect(Menu,(255,255,255),infoEliminar)
             activoEliminar = fuente2.render("Seleccione el componente electronico que desea girar", True, (negro))
             Menu.blit(activoEliminar,infoEliminar)
+
+        if MostrarTensiones:
+            Pos = -1
+            for cadaNodo in NodosE:
+                Pos+=1
+                for cadaPunto in cadaNodo:
+                    if cadaPunto.collidepoint(event.pos):
+                        print(ListaTensiones[Pos])
+                        pygame.draw.rect(Menu,(255,255,255),infoEliminar)
+                        TensionActual = fuente2.render("      Voltaje: "+str(ListaTensiones[Pos][0])+" V     Corriente: "+str(ListaTensiones[Pos][1])+" mA", True, (negro))
+                        Menu.blit(TensionActual,infoEliminar)
 
         Menu.blit(FPoder_Image,(981,15))
         if seleccionFPoder[0]:
