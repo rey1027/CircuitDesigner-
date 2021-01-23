@@ -10,6 +10,20 @@ pygame.init()
 
 
 def menu():
+
+    def CargarCircuito(file):
+            ruta=file+".txt"#ruta
+            archivo=open(ruta)#abrir
+            contenido=archivo.readlines()#lectura de las lineas
+            archivo.close()#cerrar
+            return contenido
+    ### ESCRITURA EN ARCHIVO (FACTURAS) ###
+    def GuardarCircuito(file,dato):
+            ruta=file+".txt"
+            archivo=open(ruta,"a")#a->append
+            archivo.write(dato+"\n") # escribe el dato en el archivo
+            archivo.close()
+
     
     negro = (0,0,0)
     blanco = (255,255,255)
@@ -41,6 +55,8 @@ def menu():
     userText = ""
     # Valor
     userText2 = ""
+
+    userText3 = ""
 
     fuente2 = pygame.font.Font(None,25)
 
@@ -90,6 +106,8 @@ def menu():
 
     inputRectValor = pygame.Rect(962,299,82,22)
 
+    inputExpImp = pygame.Rect(956,519,125,22)
+
     seleccionRect =  pygame.Rect(957,170,120,161)
 
     seleccionRect2 = pygame.Rect(960,173,115,155)
@@ -105,9 +123,12 @@ def menu():
 
     activo = False
     activo2 = False
+    activo3 = False
 
     eliminar = False
     voltear = False
+    exportar = False
+    importar = False
 
     conectar = 0
 
@@ -143,6 +164,12 @@ def menu():
                         userText2 = userText2[0:-1]
                     else:    
                         userText2 += event.unicode
+                if activo3 == True:
+                    if event.key == pygame.K_BACKSPACE:
+                        userText3 = userText3[0:-1]
+                    else:    
+                        userText3 += event.unicode
+
 
                 if event.key == pygame.K_s:
                     contNodoE+=1
@@ -173,7 +200,14 @@ def menu():
                     activo2 = True
 
                 if not inputRectValor.collidepoint(event.pos):
-                    activo2 = False              
+                    activo2 = False
+
+                if inputExpImp.collidepoint(event.pos):
+                    activo3 = True
+                    print(activo3,activo2,activo)
+
+                if not inputExpImp.collidepoint(event.pos):
+                    activo3 = False              
 
                 if PositionMenu[0]>80 and PositionMenu[0]<930 and PositionMenu[1]<570:
                     
@@ -528,7 +562,13 @@ def menu():
                     seleccionResistencia[0] = True
                     seleccionFPoder[0] = False
                     textSeleccion2 = "Resistencia"
-                    unid = "Ω"    
+                    unid = "Ω"
+
+                if PositionMenu[0]>955 and PositionMenu[0]<1080 and PositionMenu[1]>474 and PositionMenu[1]<506:
+                    exportar = True
+
+                if PositionMenu[0]>955 and PositionMenu[0]<1080 and PositionMenu[1]>433 and PositionMenu[1]<465:
+                    importar = True   
 
                 """
                 conectar +=1
@@ -583,7 +623,102 @@ def menu():
             activoEliminar = fuente2.render("Seleccione el componente electronico que desea girar", True, (negro))
             Menu.blit(activoEliminar,infoEliminar)
 
+        if exportar:  
+            for cadaComponente in ListaGrafo:
+                GuardarCircuito(userText3,str(cadaComponente))
+            for i in NodosE:
+                GuardarCircuito(userText3+"Nodos",str(i))
+
+            userText3 = ""
+            exportar = False
+
+        if importar:
+            userText = ""
+            # Valor
+            userText2 = ""
+
+            textSeleccion2 = " ------ "
+            unid = "---"
+            ListaGrafo = []
+            ListaConexiones = []
+            for recs in RectsList: # For the squares in the list
+                    Menu.blit(Slot,(recs[0],recs[1]))
+            for indicador in indicadorEstado:
+                indicador = 0
+
+            seleccionFPoder = [False]
+            seleccionResistencia = [False]
+            color = (255, 255, 255)
+            colorPassive = pygame.Color("gray15")
+            colo = colorPassive
+            activo = False
+            activo2 = False
+            activo3 = False
+            eliminar = False
+            voltear = False
+            exportar = False
+            #importar = False
+            conectar = 0
+            simulacion = False
+            contNodoE = 0
+            colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+            NodoElectronico = []
+            NodosE = []
+            ListaTensiones = []
+            MostrarTensiones = False
+            Cargando_Image = FPoder_Image
+            InfoV = ""
+
+            try:
+                guardado = CargarCircuito(userText3) #test code
+                #guardado2 = CargarCircuito(userText3+"Nodos")
+                # ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
+                for cadaLinea in guardado:
+
+                    nombreCargado = cadaLinea.split(",")[0].split("'")[1]
+                    valorCargado = cadaLinea.split(",")[1].split("'")[1]
+                    indEstadoCargado = int(cadaLinea.split(",")[2])
+                    XCargado = int(cadaLinea.split(",")[3])
+                    YCargado = int(cadaLinea.split(",")[4])
+                    
+                    print(valorCargado)
+
+                    if indEstadoCargado == 1:
+                        Cargando_Image = FPoder_Image
+                    
+                    if indEstadoCargado == 2:
+                        Cargando_Image = FPoderH_Image
+                    
+                    if indEstadoCargado == 3:
+                        Cargando_Image = Resistencia_Image
+
+                    if indEstadoCargado == 4:
+                        Cargando_Image = ResistenciaH_Image
+                    
+                    Menu.blit(Cargando_Image,(XCargado,YCargado))
+
+                    InfoN = fuente2.render(nombreCargado, True, (negro))
+                    Menu.blit(InfoN,(XCargado-57,YCargado-40))
+                    Menu.blit(fuente2.render(valorCargado, True, (negro)),(XCargado-47,YCargado-20))
+
+                    Posicion = -1
+                    for recs in RectsList: # For the squares in the list
+                        Posicion+=1
+                        if recs.x == XCargado and recs.y == YCargado:
+                            indicadorEstado[Posicion] = indEstadoCargado
+
+ 
+
+
+
+            except:
+                print("Circuito inexistente")  
+            
+            importar = False
+
+
         if MostrarTensiones:
+            PositionSimulacion = pygame.mouse.get_pos()
             Pos = -1
             for cadaNodo in NodosE:
                 Pos+=1
@@ -603,8 +738,8 @@ def menu():
             Menu.blit(ResistenciaS_Image,(981,90))
         #Menu.blit(ResistenciaH_Image,(973,220))
 
-        Menu.blit(Importar_Image,(943,448))
-        Menu.blit(Exportar_Image,(949,490))
+        Menu.blit(Importar_Image,(943,428))
+        Menu.blit(Exportar_Image,(949,470))
         Menu.blit(Simulacion_Image,(943,567))
 
         pygame.draw.rect(Menu,color,inputRect)
@@ -614,6 +749,10 @@ def menu():
         pygame.draw.rect(Menu,color,inputRectValor)
         textSurface2 = fuente.render(userText2,True,(negro))
         Menu.blit(textSurface2,inputRectValor)
+
+        pygame.draw.rect(Menu,color,inputExpImp)
+        textSurface3 = fuente.render(userText3,True,(negro))
+        Menu.blit(textSurface3,inputExpImp)
 
         Nombre = fuente2.render("Nombre:", True, (255,255,255))
         Menu.blit(Nombre,(964,229))
