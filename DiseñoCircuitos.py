@@ -4,7 +4,7 @@ import random
 import time    
 import threading # hilos
 import eztext
-import networkx as nx
+#import networkx as nx
 
 pygame.init()
 
@@ -83,7 +83,7 @@ def menu():
     Exportar_Image = pygame.transform.scale(Exportar_Image, (140, 38))
     Simulacion_Image = pygame.image.load("Simulacion.png")
     
-    Grafo = nx.Graph()
+    #Grafo = nx.Graph()
 
     ListaGrafo = []
 
@@ -145,6 +145,60 @@ def menu():
     ListaTensiones = []
 
     MostrarTensiones = False
+
+    NombresComponentes = []
+
+    def ord_alf(cadena):
+       alfabeto = {
+              "A":1, "a":1, "Á":1, "á":1,
+              "B":2, "b":2,
+              "C":3, "c":3,
+              "D":4, "d":4,
+              "E":5, "e":5, "É":5, "é":5,
+              "F":6, "f":6,
+              "G":7, "g":7,
+              "H":8, "h":8,
+              "I":9, "i":9, "Í":9, "í":9,
+              "J":10, "j":10,
+              "K":11, "k":11,
+              "L":12, "l":12,
+              "M":13, "m":13,
+              "N":14, "n":14,
+              "Ñ":15, "ñ":15,
+              "O":16, "o":16, "Ó":16, "ó":16,
+              "P":17, "p":17,
+              "Q":18, "q":18,
+              "R":19, "r":19,
+              "S":20, "s":20,
+              "T":21, "t":21,
+              "U":22, "u":22, "Ú":22, "ú":22,
+              "V":23, "v":23,
+              "W":24, "w":24,
+              "X":25, "x":25,
+              "Y":26, "y":26,
+              "Z":27, "z":27,
+              }
+       codigos=[ ]
+       for letra in cadena :
+              codigos.append(alfabeto[letra])
+       return codigos
+
+    def sort(lista):
+        izquierda = []
+        centro = []
+        derecha = []
+        if len(lista) > 1:
+            pivote = lista[0]
+            for i in lista:
+                if i < pivote:
+                    izquierda.append(i)
+                elif i == pivote:
+                    centro.append(i)
+                elif i > pivote:
+                    derecha.append(i)
+            return sort(izquierda)+centro+sort(derecha)
+        else:
+            return lista
 
     while True:
 
@@ -299,7 +353,10 @@ def menu():
 
                                 for nodo in ListaGrafo:
                                     if nodo[3] == recs.x and nodo[4] == recs.y:
-                                        ListaGrafo.remove(nodo)        
+                                        ListaGrafo.remove(nodo)
+                                    for i in NombresComponentes:
+                                        if nodo[0] == i:
+                                                NombresComponentes.remove(i)
 
 
                         #print(indicadorEstado)
@@ -595,6 +652,9 @@ def menu():
         #print(RectsList[28])
         #print(PuntosEnlace)    
         if simulacion:
+            for i in ListaGrafo:
+                if i[2] == 3 or i[2] == 4:
+                    NombresComponentes.append(i[0])
             eliminar = False
             voltear = False
             activo = False
@@ -718,6 +778,11 @@ def menu():
 
 
         if MostrarTensiones:
+            pygame.draw.rect(Menu,(255,255,255),infoEliminar)
+            activoEliminar = fuente2.render("            Ascendente: "+str(sort(NombresComponentes))+"            " +"            Descendente: "+str(sort(NombresComponentes)   ), True, (negro))
+            Menu.blit(activoEliminar,infoEliminar)
+
+          
             PositionSimulacion = pygame.mouse.get_pos()
             Pos = -1
             for cadaNodo in NodosE:
@@ -728,6 +793,9 @@ def menu():
                         pygame.draw.rect(Menu,(255,255,255),infoEliminar)
                         TensionActual = fuente2.render("      Voltaje: "+str(ListaTensiones[Pos][0])+" V     Corriente: "+str(ListaTensiones[Pos][1])+" mA", True, (negro))
                         Menu.blit(TensionActual,infoEliminar)
+                        
+            
+
 
         Menu.blit(FPoder_Image,(981,15))
         if seleccionFPoder[0]:
