@@ -211,6 +211,17 @@ def menu():
         else:
             return lista
 
+    ##ALGORITMO DE INSERTION SORT PARA ORDENAR DESCENDENTE LOS NOMBRES DE LAS RESISTENCIAS##
+    def insertionSort(NombresComponentes):
+        for index in range(1,len(NombresComponentes)):
+            valor = NombresComponentes[index]
+            posicion = index
+            while posicion >0 and NombresComponentes[posicion-1]< valor:
+                NombresComponentes[posicion]=NombresComponentes[posicion-1]
+                posicion = posicion-1
+            NombresComponentes[posicion]= valor
+    insertionSort(NombresComponentes)
+
     #BUCLE PRINCIPAL DEL DISEÑADOR DE CIRCUITOS 
     while True:
 
@@ -827,8 +838,9 @@ def menu():
 
         #Muestra las tensiones de cada nodo y ordena los nombres de las resistecias en orden alfabetico 
         if MostrarTensiones:
+            insertionSort(NombresComponentes)
             pygame.draw.rect(Menu,(255,255,255),infoEliminar)
-            activoEliminar = fuente2.render("            Ascendente: "+str(sort(NombresComponentes))+"            " +"            Descendente: "+str(sort(NombresComponentes)   ), True, (negro))
+            activoEliminar = fuente2.render("            Ascendente: "+str(sort(NombresComponentes))+"            " +"            Descendente: "+str(NombresComponentes), True, (negro))
             Menu.blit(activoEliminar,infoEliminar)
 
           
