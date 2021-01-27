@@ -17,6 +17,8 @@ import random
 import time    
 import threading # hilos
 import eztext
+from FuentePoder import FuentePoder
+from Resistencia import Resistencia
 
 #Inicio del Programa 
 pygame.init()
@@ -24,7 +26,7 @@ pygame.init()
 ##FUNCIÓN PRINCIPAL DEL DISEÑADOR DE CIRCUITOS##
 def menu():
 
-	##FUNCIÓN PARA LA IMPORTACIÓN DE CIRCUITO##
+    ##FUNCIÓN PARA LA IMPORTACIÓN DE CIRCUITO##
     def CargarCircuito(file):
             ruta=file+".txt"#ruta
             archivo=open(ruta)#abrir
@@ -54,7 +56,9 @@ def menu():
     ListaGrafo = []
     ListaConexiones = []
     NodoElectronico = []
+    NodoElectronico2 = []
     NodosE = []
+    NodosE2= []
     ListaTensiones = []
     NombresComponentes = []
 
@@ -150,11 +154,12 @@ def menu():
     simulacion = False
     contNodoE = 0
     MostrarTensiones = False
+    conecta2 = False
 
     #Variable para el cambio de color de los nodos 
     colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
 
-  	##FUNCION PARA EL ORDEN ALFABETICO##
+    ##FUNCION PARA EL ORDEN ALFABETICO##
     def ord_alf(cadena):
        alfabeto = {
               "A":1, "a":1, "Á":1, "á":1,
@@ -225,9 +230,9 @@ def menu():
     #BUCLE PRINCIPAL DEL DISEÑADOR DE CIRCUITOS 
     while True:
 
-    	#BUCLE DE EVENTOS 
+        #BUCLE DE EVENTOS 
         for event in pygame.event.get():
-        	#Evento Salir
+            #Evento Salir
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -235,7 +240,7 @@ def menu():
             #Eventos de teclas  
             if event.type == pygame.KEYDOWN:
 
-            	#Para escribir en el nombre del componente
+                #Para escribir en el nombre del componente
                 if activo == True:
                     if event.key == pygame.K_BACKSPACE:
                         userText = userText[0:-1]
@@ -258,6 +263,7 @@ def menu():
                 if event.key == pygame.K_s:
                     contNodoE+=1
                     colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+                    NodosE2.append(NodoElectronico2)
                     NodosE.append(NodoElectronico)
                     NodoElectronico = []
                     print (NodosE)             
@@ -265,7 +271,7 @@ def menu():
             #Eventos de click en pantanlla
             if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
 
-            	#Posición del Mouse
+                #Posición del Mouse
                 PositionMenu = pygame.mouse.get_pos()
                 print(PositionMenu)
 
@@ -328,7 +334,8 @@ def menu():
                                 pygame.draw.rect(Menu, negro, b)
 
                                 #Agregar un nodo al grafo
-                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
+                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b,a.x,a.y,b.x,b.y])
+                                nFPoder = FuentePoder(userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b)
 
                         #Reiniciar los campos
                         textSeleccion2 = " ------ "
@@ -348,7 +355,7 @@ def menu():
 
                             if recs.collidepoint(event.pos):
 
-                            	#Indicar que todo lo del elemento este eliminado
+                                #Indicar que todo lo del elemento este eliminado
                                 indicadorEstado[Posicion-1] = 0
                                 indicadorEstado[Posicion+1] = 0
                                 indicadorEstado[Posicion-13] = 0
@@ -401,10 +408,10 @@ def menu():
                         for recs in RectsList: # For the squares in the list
                             Posicion+=1
                             if recs.collidepoint(event.pos):
-                            	#Fuente de Poder Horizontal 
+                                #Fuente de Poder Horizontal 
                                 if indicadorEstado[Posicion] == 2:
 
-                                	#Indica la posicion a cambiar vertical
+                                    #Indica la posicion a cambiar vertical
                                     indicadorEstado[Posicion] = 1
                                     recs.x = recs[0]
                                     recs.y = recs[1]
@@ -439,11 +446,15 @@ def menu():
                                                 nodo[2] = 1 
                                                 nodo[5] = a
                                                 nodo[6] = b
+                                                nodo[7] = a.x
+                                                nodo[8] = a.y
+                                                nodo[9] = b.x
+                                                nodo[10] = b.y
                                 
                                 #Fuente de Poder Vertical
                                 elif indicadorEstado[Posicion] == 1:
 
-                                	#Indica la posicion a cambiar horizontal
+                                    #Indica la posicion a cambiar horizontal
                                     indicadorEstado[Posicion] = 2
                                     recs.x = recs[0]
                                     recs.y = recs[1]
@@ -479,11 +490,17 @@ def menu():
                                                 nodo[2] = 2 
                                                 nodo[5] = a
                                                 nodo[6] = b
+                                                nodo[7] = a.x
+                                                nodo[8] = a.y
+                                                nodo[9] = b.x
+                                                nodo[10] = b.y
+
+                                    print(ListaGrafo)
 
                                 #Resistencia Horizontal
                                 elif indicadorEstado[Posicion] == 4:
 
-                                	#Indica la posicion a cambiar vertical
+                                    #Indica la posicion a cambiar vertical
                                     indicadorEstado[Posicion] = 3
                                     recs.x = recs[0]
                                     recs.y = recs[1]
@@ -519,11 +536,15 @@ def menu():
                                                 nodo[2] = 3 
                                                 nodo[5] = a
                                                 nodo[6] = b
+                                                nodo[7] = a.x
+                                                nodo[8] = a.y
+                                                nodo[9] = b.x
+                                                nodo[10] = b.y
 
                                 #Resistencia Vertical
                                 elif indicadorEstado[Posicion] == 3:
 
-                                	#Indica la posicion a cambiar horizontal
+                                    #Indica la posicion a cambiar horizontal
                                     indicadorEstado[Posicion] = 4
                                     recs.x = recs[0]
                                     recs.y = recs[1]
@@ -559,6 +580,10 @@ def menu():
                                                 nodo[2] = 4 
                                                 nodo[5] = a
                                                 nodo[6] = b
+                                                nodo[7] = a.x
+                                                nodo[8] = a.y
+                                                nodo[9] = b.x
+                                                nodo[10] = b.y
 
                         #Limpiar el campo 
                         textSeleccion2 = " ------ "
@@ -573,7 +598,7 @@ def menu():
                             Posicion+=1
                             if recs.collidepoint(event.pos):
 
-                            	#Indica el elemento a colocar
+                                #Indica el elemento a colocar
                                 indicadorEstado[Posicion-1] = 5
                                 indicadorEstado[Posicion] = 3
                                 recs.x = recs[0]
@@ -598,7 +623,8 @@ def menu():
                                 pygame.draw.rect(Menu, negro, b)
 
                                 #Agregar un nodo al grafo
-                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
+                                ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b,a.x,a.y,b.x,b.y])
+                                nResist = Resistencia(userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b)
                                 print(ListaGrafo)
 
                         #Limpiar campos        
@@ -609,52 +635,91 @@ def menu():
 
                     # Conexion entre puntos
                     Punto = -1
+                    #conexion1=0
+                    #enlazado1=0
+                    print(PuntosEnlace)
+                    
                     for puntos in PuntosEnlace: # For the squares in the list
                         Punto+=1
 
                         #Seleccionar el primer punto de conexión
                         if puntos.collidepoint(event.pos) and conectar == 0:
-                            
-                            ##ALGORITMO PARA SABER EL PUNTO DE ENLACE DEL COMPONENTE QUE SE UTILIZA##
+                            print("puntos[0]")
+                            print(puntos[0])
                             for nodo in ListaGrafo:
-                                if nodo[5][0] == puntos[0] and nodo[5][1] == puntos[1]:
-                                    conexion1 = nodo[0]
-                                    enlazado1 = nodo[5]
-                                elif nodo[6][0] == puntos[0] and nodo[6][1] == puntos[1]:
-                                    conexion1 = nodo[0]
-                                    enlazado1 = nodo[6]
+                                if nodo[5][1] == puntos[1]:
+                                    if nodo[5][0] == puntos[0]:
+                                        x=nodo[5][0]
+                                        print(x)
+                                        y=nodo[5][1]
+                                        enlazado1 = nodo[5]
+                                        print(y)
+                                        print("uno")
 
+                                if nodo[6][1] == puntos[1]:
+                                    if nodo[6][0] == puntos[0]:
+                                        x=nodo[6][0]
+                                        print(x)
+                                        y=nodo[6][1]
+                                        enlazado1 = nodo[6]
+                                        print(y)
+                                        print("dos")
+
+                            ##ALGORITMO PARA SABER EL PUNTO DE ENLACE DEL COMPONENTE QUE SE UTILIZA##
                             pygame.draw.rect(Menu, (219, 177, 48), puntos)
                             p1=(puntos[0],puntos[1])
                             conectar = 1
-                            break
+                            break     
 
                         #Seleccionar otro punto de conexión y dibuja el cable 
-                        if puntos.collidepoint(event.pos) and conectar == 1:
+                        elif puntos.collidepoint(event.pos) and conecta2:
 
-                        	##ALGORITMO PARA SABER EL PUNTO DE ENLACE DEL COMPONENTE QUE SE UTILIZA Y AGREGARLO AL GRAFO DE NODOS ELECTRONICOS##
+                            ##ALGORITMO PARA SABER EL PUNTO DE ENLACE DEL COMPONENTE QUE SE UTILIZA Y AGREGARLO AL GRAFO DE NODOS ELECTRONICOS##
                             for nodo in ListaGrafo:
                                 if nodo[5][0] == puntos[0] and nodo[5][1] == puntos[1]:
-                                    conexion2 = nodo[0] 
+                                    conexion2 = nodo[5] 
                                     enlazado2 = nodo[5]
-                                    ListaConexiones.append([conexion1,conexion2])
+                                    print("tres")
 
+                                    #ListaConexiones.append([conexion1,conexion2])
+                                    
                                     NodoElectronico.append(enlazado1)
                                     NodoElectronico.append(enlazado2)
+                                    print(NodoElectronico)
+                                    
+                                    NodoElectronico2.append(enlazado1.x)
+                                    NodoElectronico2.append(enlazado1.y)
+                                    NodoElectronico2.append(enlazado2.x)
+                                    NodoElectronico2.append(enlazado2.y)
+                                    break
 
                                 elif nodo[6][0] == puntos[0] and nodo[6][1] == puntos[1]:
-                                    conexion2 = nodo[0]
+                                    conexion2 = nodo[6]
                                     enlazado2 = nodo[6]
-                                    ListaConexiones.append([conexion1,enlazado1,conexion2,enlazado2])
+                                    print("cuatro")
+
+                                    #ListaConexiones.append([conexion1,enlazado1,conexion2,enlazado2])
 
                                     NodoElectronico.append(enlazado1)
                                     NodoElectronico.append(enlazado2)
+                                    print(NodoElectronico)
+
+                                    NodoElectronico2.append(enlazado1.x)
+                                    NodoElectronico2.append(enlazado1.y)
+                                    NodoElectronico2.append(enlazado2.x)
+                                    NodoElectronico2.append(enlazado2.y)
+                                    break
                                     
                             #Dibuja el cable de conexión
                             pygame.draw.line(Menu, colorNodoE, (p1[0],p1[1]), (puntos[0], puntos[1]),2)
                             pygame.draw.rect(Menu, (219, 177, 48), puntos)
                             conectar = 0
+                            conecta2=False
+                            break
 
+
+                if conectar ==1:
+                    conecta2=True
                 #Al pulsar botón eliminar
                 if PositionMenu[0]>948 and PositionMenu[0]<1028 and PositionMenu[1]>340 and PositionMenu[1]<410:
                     eliminar = True
@@ -701,7 +766,7 @@ def menu():
         #´Funcion para la sinulacion del circuito  
         if simulacion:
 
-        	#Añadir los nombres de los componentes
+            #Añadir los nombres de los componentes
             for i in ListaGrafo:
                 if i[2] == 3 or i[2] == 4:
                     NombresComponentes.append(i[0])
@@ -744,8 +809,9 @@ def menu():
         if exportar:  
             for cadaComponente in ListaGrafo:
                 GuardarCircuito(userText3,str(cadaComponente))
-            for i in NodosE:
+            for i in NodosE2:
                 GuardarCircuito(userText3+"Nodos",str(i))
+            
             userText3 = ""
             exportar = False
 
@@ -791,6 +857,7 @@ def menu():
             #Excepcion para detectar cuando no existe el archivo
             try:
                 guardado = CargarCircuito(userText3) #test code
+                guardadoNodos = CargarCircuito(userText3+"Nodos")
                 #guardado2 = CargarCircuito(userText3+"Nodos")
                 # ListaGrafo.append([userText,userText2,indicadorEstado[Posicion],recs.x,recs.y,a,b])
                 for cadaLinea in guardado:
@@ -800,8 +867,11 @@ def menu():
                     indEstadoCargado = int(cadaLinea.split(",")[2])
                     XCargado = int(cadaLinea.split(",")[3])
                     YCargado = int(cadaLinea.split(",")[4])
-                    
-                    print(valorCargado)
+                    #print(cadaLinea.split("]")[0].split(",")[16])
+                    Xpunto1=int(cadaLinea.split(",")[13])
+                    Ypunto1=int(cadaLinea.split(",")[14])
+                    Xpunto2=int(cadaLinea.split(",")[15])
+                    Xpunto2=int(cadaLinea.split("]")[0].split(",")[16])
 
                     if indEstadoCargado == 1:
                         Cargando_Image = FPoder_Image
@@ -817,6 +887,26 @@ def menu():
                     
                     Menu.blit(Cargando_Image,(XCargado,YCargado))
 
+                    if indEstadoCargado == 2 or indEstadoCargado == 4:
+                        pygame.draw.rect(Menu,(negro),(XCargado-40,YCargado+34,40,2))
+                        pygame.draw.rect(Menu,(negro),(XCargado+66,YCargado+34,40,2))
+                        a = pygame.Rect(XCargado-40,YCargado+31,5,7)
+                        PuntosEnlace.append(a)
+                        pygame.draw.rect(Menu, negro, a)
+                        b = pygame.Rect(XCargado+106,YCargado+31,5,7)
+                        PuntosEnlace.append(b)
+                        pygame.draw.rect(Menu, negro, b)
+
+                    if indEstadoCargado == 1 or indEstadoCargado == 3:
+                        pygame.draw.rect(Menu,(negro),(XCargado+33,YCargado-40,2,40))
+                        pygame.draw.rect(Menu,(negro),(XCargado+33,YCargado+69,2,40))
+                        a = pygame.Rect(XCargado+31,YCargado-40,7,5)
+                        PuntosEnlace.append(a)
+                        pygame.draw.rect(Menu, negro, a)
+                        b = pygame.Rect(XCargado+31,YCargado+106,7,5)
+                        PuntosEnlace.append(b)
+                        pygame.draw.rect(Menu, negro, b)
+
                     InfoN = fuente2.render(nombreCargado, True, (negro))
                     Menu.blit(InfoN,(XCargado-57,YCargado-40))
                     Menu.blit(fuente2.render(valorCargado, True, (negro)),(XCargado-47,YCargado-20))
@@ -827,9 +917,35 @@ def menu():
                         if recs.x == XCargado and recs.y == YCargado:
                             indicadorEstado[Posicion] = indEstadoCargado
 
- 
-
-
+                
+                for cadaLinea2 in guardadoNodos:
+                    #print(cadaLinea2)
+                    #print(cadaLinea2.split("[")[1].split("]")[0])
+                    lis = []
+                    for j in cadaLinea2.split("[")[1].split("]")[0].split(","):
+                        lis.append(int(j))
+                    contNE = 0
+                    for coordenada in lis:
+                        print(contNE)
+                        print(coordenada)
+                        if contNE == 0:
+                            punto1x = coordenada  
+                            contNE+=1
+                        elif contNE == 1:
+                            punto1y = coordenada
+                            contNE+=1
+                        elif contNE ==2:
+                            punto2x = coordenada
+                            contNE+=1
+                        elif contNE ==3:
+                            punto2y = coordenada
+                            colorAleatorio = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+                            print(punto1x,punto1y,punto2x,punto2y)
+                            pygame.draw.line(Menu, colorAleatorio, (punto1x,punto1y), (punto2x,punto2y),2)
+                            contNE=0
+                        
+                    #for cadaCondectado in cadaLinea2:
+                        #pygame.draw.line(Menu, colorAleatorio, (cadaCondectado[0][0],cadaCondectado[0][1]), (cadaCondectado[1][0], cadaCondectado[1][1]),2)
 
             except:
                 print("Circuito inexistente")  
@@ -843,18 +959,20 @@ def menu():
             activoEliminar = fuente2.render("            Ascendente: "+str(sort(NombresComponentes))+"            " +"            Descendente: "+str(NombresComponentes), True, (negro))
             Menu.blit(activoEliminar,infoEliminar)
 
-          
-            PositionSimulacion = pygame.mouse.get_pos()
-            Pos = -1
-            for cadaNodo in NodosE:
-                Pos+=1
-                for cadaPunto in cadaNodo:
-                    if cadaPunto.collidepoint(event.pos):
-                        print(ListaTensiones[Pos])
-                        pygame.draw.rect(Menu,(255,255,255),infoEliminar)
-                        TensionActual = fuente2.render("      Voltaje: "+str(ListaTensiones[Pos][0])+" V     Corriente: "+str(ListaTensiones[Pos][1])+" mA", True, (negro))
-                        Menu.blit(TensionActual,infoEliminar)
-                        
+            try:
+                PositionSimulacion = pygame.mouse.get_pos()
+                Pos = -1
+                for cadaNodo in NodosE:
+                    print(cadaNodo)
+                    Pos+=1
+                    for cadaPunto in cadaNodo:
+                        if cadaPunto.collidepoint(event.pos):
+                            print(ListaTensiones[Pos])
+                            pygame.draw.rect(Menu,(255,255,255),infoEliminar)
+                            TensionActual = fuente2.render("      Voltaje: "+str(ListaTensiones[Pos][0])+" V     Corriente: "+str(ListaTensiones[Pos][1])+" mA", True, (negro))
+                            Menu.blit(TensionActual,infoEliminar)
+            except:
+                print("Fuera de Posicion")           
             
         #Colocar los botones en el tablero 
         Menu.blit(FPoder_Image,(981,15))
@@ -898,7 +1016,7 @@ def menu():
         seleccionado2 = fuente2.render(textSeleccion2, True, (219, 177, 48))
         Menu.blit(seleccionado2,(975,201))
 
-       	#Actualizar la pantalla
+        #Actualizar la pantalla
         pygame.display.update()
         pygame.time.wait(50)
 menu()
