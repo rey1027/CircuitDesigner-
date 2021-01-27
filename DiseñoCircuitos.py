@@ -1019,6 +1019,55 @@ def menu():
         #Actualizar la pantalla
         pygame.display.update()
         pygame.time.wait(50)
-menu()
 
+### MENU ### ===================================================================================================================
+#Funcion que llama a la ventana de creditos del programa 
+def credit():
+    Credit = pygame.display.set_mode([700,550]) # Play window with its dimensions     
+
+    Credits_Image = pygame.image.load("Creditos.png").convert()
+
+    while True:
+        #Ciclo para cerrar la ventana
+        for event in pygame.event.get():         
+            if event.type == pygame.QUIT: 
+                pygame.quit() # Cerrar
+
+            #Evento para presionar el boton de volver
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+                PositionMenu = pygame.mouse.get_pos()
+                if PositionMenu[0]>38 and PositionMenu[0]<94 and PositionMenu[1]>450 and PositionMenu[1]<506: # Si se pulsa el boton Play
+                    return principal()
+        #Pone la imagen de los creditos         
+        Credit.blit(Credits_Image,(0,0))
+        pygame.time.wait(50) # Tiempo en milisegundos para una mejor funcionalidad
+        pygame.display.update()
+
+#Funcion que llama a la ventana del menu principal del programa     
+def principal():
+
+    Menu= pygame.display.set_mode([700,550]) # Play window with its dimensions     
+
+    MainMenu_Image = pygame.image.load("Circuit Designer.png").convert()
+    
+    while True:
+        #Ciclo para cerrar el programa
+        for event in pygame.event.get():         
+            if event.type == pygame.QUIT: 
+                pygame.quit() # Cerrar
+                sys.exit()
+            # Eventos de los botones  
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+                    PositionMenu = pygame.mouse.get_pos()
+                
+                    if PositionMenu[0]>277 and PositionMenu[0]<450 and PositionMenu[1]>325 and PositionMenu[1]<400 :
+                        return menu()
+                    elif PositionMenu[0]>279 and PositionMenu[0]<440 and PositionMenu[1]>439 and PositionMenu[1]<515 :
+                        return credit()
+                        
+        #Pone la imagen del Menu 
+        Menu.blit(MainMenu_Image,(0,0))
+        pygame.time.wait(50) # Tiempo en milisegundos para una mejor funcionalida
+        pygame.display.update() # Actualizar constantemente la pantalla        
+principal()
 
