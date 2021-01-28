@@ -19,6 +19,8 @@ import threading # hilos
 import eztext
 from FuentePoder import FuentePoder
 from Resistencia import Resistencia
+from collections import deque, namedtuple
+from Graph import Graph
 
 #Inicio del Programa 
 pygame.init()
@@ -61,6 +63,8 @@ def menu():
     NodosE2= []
     ListaTensiones = []
     NombresComponentes = []
+    Grafo = []
+    GrafoFinal = []
 
     #Coordenadas iniciales
     x1=15 # Position x initial 
@@ -138,6 +142,7 @@ def menu():
     seleccionRect2 = pygame.Rect(960,173,115,155)
     eliminarRect = pygame.Rect(981,500,70,70)
     infoEliminar = pygame.Rect(16,587,922,55)
+    infoDijkstra = pygame.Rect(15,16,100,55)
 
 
     
@@ -155,9 +160,25 @@ def menu():
     contNodoE = 0
     MostrarTensiones = False
     conecta2 = False
+    global contDijk
+    contDijk=0
+    detener = False
+    cantidadNodosE = 0
+    D1 = 0
 
     #Variable para el cambio de color de los nodos 
     colorNodoE = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+
+    
+
+
+    # we'll use infinity as a default distance to nodes.
+    inf = float('inf')
+    Edge = namedtuple('Edge', 'start, end, cost')
+
+
+    def make_edge(start, end, cost=1):
+        return Edge(start, end, cost)
 
     ##FUNCION PARA EL ORDEN ALFABETICO##
     def ord_alf(cadena):
@@ -266,10 +287,32 @@ def menu():
                     NodosE2.append(NodoElectronico2)
                     NodosE.append(NodoElectronico)
                     NodoElectronico = []
-                    print (NodosE)             
+                    print (NodosE)
+                    randomCorriente = random.randint(1,1000)
+                    ListaTensiones += [[random.randint(1,10),randomCorriente]]
+                    for num in range(cantidadNodosE,len(Grafo)): 
+                        Grafo[num][2]= randomCorriente
+                        cantidadNodosE+=1
+                    print(Grafo)
+                    
+
             
             #Eventos de click en pantanlla
             if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+                if D1!=0:
+                    for cadaNodo in NodosE:
+                    #print(cadaNodo)
+                        Pos+=1
+                        for cadaPunto in cadaNodo:
+                            if cadaPunto.collidepoint(event.pos):
+                                for j in ListaGrafo:
+                                    if j[5]==cadaPunto or j[6]==cadaPunto:
+                                        D2 = j[0]
+                                        pygame.draw.rect(Menu,(255,255,255),infoDijkstra)
+                                        activoDijk = fuente2.render(str(GrafoFinal.dijkstra(D1,D2)), True, (negro))
+                                        Menu.blit(activoDijk,infoDijkstra)
+                                        print(GrafoFinal.dijkstra(D1,D2))
+                                        D1=0
 
                 #Posición del Mouse
                 PositionMenu = pygame.mouse.get_pos()
@@ -655,6 +698,7 @@ def menu():
                                         enlazado1 = nodo[5]
                                         print(y)
                                         print("uno")
+                                        nombre1=nodo[0]
 
                                 if nodo[6][1] == puntos[1]:
                                     if nodo[6][0] == puntos[0]:
@@ -664,6 +708,7 @@ def menu():
                                         enlazado1 = nodo[6]
                                         print(y)
                                         print("dos")
+                                        nombre1=nodo[0]
 
                             ##ALGORITMO PARA SABER EL PUNTO DE ENLACE DEL COMPONENTE QUE SE UTILIZA##
                             pygame.draw.rect(Menu, (219, 177, 48), puntos)
@@ -686,6 +731,7 @@ def menu():
                                     NodoElectronico.append(enlazado1)
                                     NodoElectronico.append(enlazado2)
                                     print(NodoElectronico)
+                                    Grafo.append([str(nombre1),str(nodo[0]),0])
                                     
                                     NodoElectronico2.append(enlazado1.x)
                                     NodoElectronico2.append(enlazado1.y)
@@ -703,6 +749,7 @@ def menu():
                                     NodoElectronico.append(enlazado1)
                                     NodoElectronico.append(enlazado2)
                                     print(NodoElectronico)
+                                    Grafo.append([str(nombre1),str(nodo[0]),0])
 
                                     NodoElectronico2.append(enlazado1.x)
                                     NodoElectronico2.append(enlazado1.y)
@@ -771,6 +818,11 @@ def menu():
                 if i[2] == 3 or i[2] == 4:
                     NombresComponentes.append(i[0])
 
+            GrafoDijkstra = []
+            for edge in Grafo:
+                GrafoDijkstra.append((edge[0],edge[1],edge[2]))
+            print(GrafoDijkstra)
+            GrafoFinal = Graph(GrafoDijkstra)
             #Bloqueo de los botones
             eliminar = False
             voltear = False
@@ -784,8 +836,7 @@ def menu():
             PositionSimulacion = pygame.mouse.get_pos()
             
             #Agregar un valor aleatorio al nodo electronico
-            for i in NodosE:
-                ListaTensiones += [[random.randint(1,10),random.randint(1,1000)]]
+            numNodo = 0
             
             #Controladores
             MostrarTensiones = True
@@ -954,26 +1005,34 @@ def menu():
 
         #Muestra las tensiones de cada nodo y ordena los nombres de las resistecias en orden alfabetico 
         if MostrarTensiones:
+            conectar = 0
             insertionSort(NombresComponentes)
             pygame.draw.rect(Menu,(255,255,255),infoEliminar)
             activoEliminar = fuente2.render("            Ascendente: "+str(sort(NombresComponentes))+"            " +"            Descendente: "+str(NombresComponentes), True, (negro))
             Menu.blit(activoEliminar,infoEliminar)
-
             try:
                 PositionSimulacion = pygame.mouse.get_pos()
                 Pos = -1
                 for cadaNodo in NodosE:
-                    print(cadaNodo)
+                    #print(cadaNodo)
                     Pos+=1
                     for cadaPunto in cadaNodo:
                         if cadaPunto.collidepoint(event.pos):
-                            print(ListaTensiones[Pos])
+                            #print(ListaTensiones[Pos])
                             pygame.draw.rect(Menu,(255,255,255),infoEliminar)
                             TensionActual = fuente2.render("      Voltaje: "+str(ListaTensiones[Pos][0])+" V     Corriente: "+str(ListaTensiones[Pos][1])+" mA", True, (negro))
                             Menu.blit(TensionActual,infoEliminar)
+
+                            if event.type == pygame.MOUSEBUTTONDOWN and event.button==1 and D1==0:
+                                for j in ListaGrafo:
+                                    if j[5]==cadaPunto or j[6]==cadaPunto:
+                                        D1 = j[0]
+                                        print(D1) 
+                    #print(contDijk)
             except:
-                print("Fuera de Posicion")           
-            
+                print("Fuera de Posicion")  
+        #print(contDijk)
+                   
         #Colocar los botones en el tablero 
         Menu.blit(FPoder_Image,(981,15))
         if seleccionFPoder[0]:
