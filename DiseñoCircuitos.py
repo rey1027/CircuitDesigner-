@@ -86,6 +86,8 @@ def menu():
     #Fuentes utilizadas en las palabras
     fuente = pygame.font.Font(None,25)
     fuente2 = pygame.font.Font(None,25)
+    fuente3 = pygame.font.Font(None,38)
+    back = fuente3.render("<<<",True,(255,227,82))
     
     # Nombre del elemento
     userText = ""
@@ -100,28 +102,28 @@ def menu():
     unid = "---"
 
     ##Imagenes Utilizadas
-    Seleccion_Image = pygame.image.load("resistencia1.png").convert()
+    Seleccion_Image = pygame.image.load("imagenesCD/resistencia1.png").convert()
     Seleccion_Image = pygame.transform.scale(Seleccion_Image, (55, 100))
-    MainMenu_Image = pygame.image.load("fondo1.png").convert()
-    Resistencia_Image = pygame.image.load("resistencia1.png").convert()
-    ResistenciaH_Image = pygame.image.load("resistencia2.png").convert()
-    ResistenciaS_Image = pygame.image.load("resistenciaS3.png").convert()
-    FPoder_Image = pygame.image.load("fuentepoder1.jpg").convert()
-    FPoderH_Image = pygame.image.load("fuentepoder2.jpg").convert()
-    FPoderS_Image = pygame.image.load("fuentepoderS3.jpg").convert()
-    Slot = pygame.image.load("Empty.png").convert()
-    Borrar_Image = pygame.image.load("Borrar.png").convert()
-    Girar_Image = pygame.image.load("Girar.png").convert()
-    Importar_Image = pygame.image.load("importar.png")
-    Exportar_Image = pygame.image.load("Exportar.png")
+    MainMenu_Image = pygame.image.load("imagenesCD/fondo1.png").convert()
+    Resistencia_Image = pygame.image.load("imagenesCD/resistencia1.png").convert()
+    ResistenciaH_Image = pygame.image.load("imagenesCD/resistencia2.png").convert()
+    ResistenciaS_Image = pygame.image.load("imagenesCD/resistenciaS3.png").convert()
+    FPoder_Image = pygame.image.load("imagenesCD/fuentepoder1.jpg").convert()
+    FPoderH_Image = pygame.image.load("imagenesCD/fuentepoder2.jpg").convert()
+    FPoderS_Image = pygame.image.load("imagenesCD/fuentepoderS3.jpg").convert()
+    Slot = pygame.image.load("imagenesCD/Empty.png").convert()
+    Borrar_Image = pygame.image.load("imagenesCD/Borrar.png").convert()
+    Girar_Image = pygame.image.load("imagenesCD/Girar.png").convert()
+    Importar_Image = pygame.image.load("imagenesCD/importar.png")
+    Exportar_Image = pygame.image.load("imagenesCD/Exportar.png")
     Exportar_Image = pygame.transform.scale(Exportar_Image, (140, 38))
-    Simulacion_Image = pygame.image.load("Simulacion.png")
+    Simulacion_Image = pygame.image.load("imagenesCD/Simulacion.png")
     
     #Grafo = nx.Graph()
 
     
     #Color de la venta
-    Menu.fill((13, 31, 74))
+    Menu.fill((3, 152, 158))
 
     #Dibuja los cuadros blancos
     for recs in RectsList: # For the squares in the list
@@ -141,11 +143,15 @@ def menu():
     seleccionRect =  pygame.Rect(957,170,120,161)
     seleccionRect2 = pygame.Rect(960,173,115,155)
     eliminarRect = pygame.Rect(981,500,70,70)
-    infoEliminar = pygame.Rect(16,587,922,55)
-    infoDijkstra = pygame.Rect(15,16,100,55)
+    infoEliminar = pygame.Rect(16,587,850,55)
+    infoDijkstra = pygame.Rect(15,1,923,25)
+    interfazRect = pygame.Rect(942,15,152,630)
+    AtrasRect = pygame.Rect(868,587,69,55)
 
-
-    
+    #DIbujar rectangulo
+    pygame.draw.rect(Menu,(76,36,147),interfazRect)
+    pygame.draw.rect(Menu,(3,82,88),AtrasRect)
+    Menu.blit(back,(AtrasRect.x+11,AtrasRect.y+14))
 
     #Controladores de las acciones
     activo = False
@@ -299,6 +305,7 @@ def menu():
             
             #Eventos de click en pantanlla
             if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+                ## Al seleccionar el segundo punto, se ejecuta el dijkstra
                 if D1!=0:
                     for cadaNodo in NodosE:
                     #print(cadaNodo)
@@ -308,8 +315,8 @@ def menu():
                                 for j in ListaGrafo:
                                     if j[5]==cadaPunto or j[6]==cadaPunto:
                                         D2 = j[0]
-                                        pygame.draw.rect(Menu,(255,255,255),infoDijkstra)
-                                        activoDijk = fuente2.render(str(GrafoFinal.dijkstra(D1,D2)), True, (negro))
+                                        pygame.draw.rect(Menu,(negro),infoDijkstra)
+                                        activoDijk = fuente2.render("     Ruta mas corta de ("+str(D1)+") hacia ("+str(D2)+") : "+str(GrafoFinal.dijkstra(D1,D2)), True, (blanco))
                                         Menu.blit(activoDijk,infoDijkstra)
                                         print(GrafoFinal.dijkstra(D1,D2))
                                         D1=0
@@ -317,6 +324,7 @@ def menu():
                 #Posición del Mouse
                 PositionMenu = pygame.mouse.get_pos()
                 print(PositionMenu)
+
 
                 #Colisiones con el rectagulo del nombre del elemento
                 if inputRect.collidepoint(event.pos):
@@ -337,6 +345,8 @@ def menu():
                 if not inputExpImp.collidepoint(event.pos):
                     activo3 = False 
 
+                if AtrasRect.collidepoint(event.pos):
+                    return principal()
 
                 if PositionMenu[0]>80 and PositionMenu[0]<930 and PositionMenu[1]<570:
                     
@@ -802,14 +812,11 @@ def menu():
                 if PositionMenu[0]>955 and PositionMenu[0]<1080 and PositionMenu[1]>433 and PositionMenu[1]<465:
                     importar = True   
 
-        #DIbujar rectangulo
-        pygame.draw.rect(Menu,(219, 177, 48),seleccionRect,5)
-        pygame.draw.rect(Menu,(87, 89, 97),seleccionRect2)
-
         #Pegar los botones
         Menu.blit(Borrar_Image,(948,340))
         Menu.blit(Girar_Image,(1021,340))
-        
+        pygame.draw.rect(Menu,(225, 227, 82),seleccionRect,5)
+        pygame.draw.rect(Menu,(3,82,88),seleccionRect2)
         #´Funcion para la sinulacion del circuito  
         if simulacion:
 
@@ -923,18 +930,22 @@ def menu():
                     Ypunto1=int(cadaLinea.split(",")[14])
                     Xpunto2=int(cadaLinea.split(",")[15])
                     Xpunto2=int(cadaLinea.split("]")[0].split(",")[16])
-
+                    simbolo = 0
                     if indEstadoCargado == 1:
                         Cargando_Image = FPoder_Image
+                        simbolo = " V"
                     
                     if indEstadoCargado == 2:
                         Cargando_Image = FPoderH_Image
+                        simbolo = " V"
                     
                     if indEstadoCargado == 3:
                         Cargando_Image = Resistencia_Image
+                        simbolo = " Ω"
 
                     if indEstadoCargado == 4:
                         Cargando_Image = ResistenciaH_Image
+                        simbolo = " Ω"
                     
                     Menu.blit(Cargando_Image,(XCargado,YCargado))
 
@@ -960,7 +971,7 @@ def menu():
 
                     InfoN = fuente2.render(nombreCargado, True, (negro))
                     Menu.blit(InfoN,(XCargado-57,YCargado-40))
-                    Menu.blit(fuente2.render(valorCargado, True, (negro)),(XCargado-47,YCargado-20))
+                    Menu.blit(fuente2.render(valorCargado+simbolo, True, (negro)),(XCargado-47,YCargado-20))
 
                     Posicion = -1
                     for recs in RectsList: # For the squares in the list
@@ -1084,7 +1095,7 @@ def menu():
 def credit():
     Credit = pygame.display.set_mode([700,550]) # Play window with its dimensions     
 
-    Credits_Image = pygame.image.load("Creditos.png").convert()
+    Credits_Image = pygame.image.load("imagenesCD/Creditos.png").convert()
 
     while True:
         #Ciclo para cerrar la ventana
@@ -1107,7 +1118,7 @@ def principal():
 
     Menu= pygame.display.set_mode([700,550]) # Play window with its dimensions     
 
-    MainMenu_Image = pygame.image.load("Circuit Designer.png").convert()
+    MainMenu_Image = pygame.image.load("imagenesCD/Circuit Designer.png").convert()
     
     while True:
         #Ciclo para cerrar el programa
